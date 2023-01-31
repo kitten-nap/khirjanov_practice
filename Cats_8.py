@@ -452,6 +452,176 @@ def cat(cat_ref_point_x=x_max//2, cat_ref_point_y=y_max//2, cat_scale=10.0, cat_
     head()
 
 
+def bezier(x1: list, x2: list, x3: list, x4: list,
+           y1: list, y2: list, y3: list, y4: list,
+           curves_amount: int, curves_colour: tuple, line_thickness):
+    """
+    This function draws Bezier's curves in the amount of curves_amount pieces with 4 control points.
+    x1 and y1 are start point coord., x4 and y4 are end point coord.
+    x2, y2, x3, y3 are middle coord.
+    :param x1:
+    :param x2:
+    :param x3:
+    :param x4:
+    :param y1:
+    :param y2:
+    :param y3:
+    :param y4:
+    :param curves_amount:
+    :param curves_colour:
+    :param line_thickness:
+    :return:
+    """
+    for j in range(0, curves_amount):
+        curve = []
+
+        for i in map(lambda x: x / 100.0, range(0, 105, 5)):
+            x = (1.0 - i) ** 3 * x1[j] + 3 * (1.0 - i) ** 2 * i * x2[j] + 3 * (1.0 - i) * i ** 2 * \
+                x3[j] + i ** 3 * x4[j]
+            y = (1.0 - i) ** 3 * y1[j] + 3 * (1.0 - i) ** 2 * i * y2[j] + 3 * (1.0 - i) * i ** 2 * \
+                y3[j] + i ** 3 * y4[j]
+            curve.append([x, y])
+
+        lines(screen, curves_colour, False, curve, line_thickness)
+
+
+def clew(clew_ref_point_x=x_max // 2 + 10 * screen_scale_x, clew_ref_point_y=y_max // 2 + 37 * screen_scale_y,
+         clew_scale=5, clew_orientation="left"):
+    """
+    This function draws clew. clew_ref_point X and Y coord. are when center of clew circle is.
+    Has low level function: clew_threads()
+    :param clew_ref_point_x:
+    :param clew_ref_point_y:
+    :param clew_scale:
+    :param clew_orientation:
+    :return:
+    """
+
+    # m - clew_orientation parameter
+    m = 0
+    if clew_orientation == "right":
+        m = 1
+    elif clew_orientation != "left":
+        print("ERROR: incorrect clew_orientation parameter has been given. 'left' or 'right' was expected")
+
+    circle(screen, gray, [clew_ref_point_x, clew_ref_point_y], 8 * clew_scale)
+    circle(screen, black, [clew_ref_point_x, clew_ref_point_y], 8 * clew_scale, width=1)
+
+    def clew_threads():
+        """
+        This function draws threads inside and outside clew.
+        Has 2 low level functions: clew_threads_outside(), clew_threads_inside()
+        :return:
+        """
+
+        def clew_threads_outside():
+            """
+            This function draws threads outside clew.
+            Has high level functions: clew_threads() -> clew().
+            :return:
+            """
+            # this is outside threads coordinates
+            x1, y1 = [clew_ref_point_x - (-1)**m * 6.2 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 19 * clew_scale],\
+                [clew_ref_point_y + 5 * clew_scale,
+                 clew_ref_point_y + 8 * clew_scale]
+
+            x2, y2 = [clew_ref_point_x - (-1)**m * 10 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 20 * clew_scale],\
+                [clew_ref_point_y + 9 * clew_scale,
+                 clew_ref_point_y + 10 * clew_scale]
+
+            x3, y3 = [clew_ref_point_x - (-1)**m * 16 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 24 * clew_scale],\
+                [clew_ref_point_y + 4 * clew_scale,
+                 clew_ref_point_y + 6 * clew_scale]
+
+            x4, y4 = [clew_ref_point_x - (-1)**m * 19 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 29 * clew_scale],\
+                [clew_ref_point_y + 8 * clew_scale,
+                 clew_ref_point_y + 9 * clew_scale]
+
+            bezier(x1, x2, x3, x4, y1, y2, y3, y4, len(x1), gray, 1 + clew_scale // 10)
+
+        clew_threads_outside()
+
+        def clew_threads_inside():
+            """
+            This function draws threads inside clew.
+            Has high level functions: clew_threads() -> clew().
+            :return:
+            """
+            # this is inside threads coordinates
+            x1, y1 = [clew_ref_point_x + (-1)**m * 2.2 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 2 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 3 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 1.5 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 1.5 * clew_scale],\
+                [clew_ref_point_y - 5 * clew_scale,
+                 clew_ref_point_y - 5 * clew_scale,
+                 clew_ref_point_y - 3.5 * clew_scale,
+                 clew_ref_point_y - 1.5 * clew_scale,
+                 clew_ref_point_y,
+                 clew_ref_point_y + 2 * clew_scale]
+
+            x2, y2 = [clew_ref_point_x + (-1)**m * 7.5 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 1.8 * clew_scale,
+                      clew_ref_point_x,
+                      clew_ref_point_x - (-1)**m * 4.5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 4.5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 0.5 * clew_scale],\
+                [clew_ref_point_y - 2 * clew_scale,
+                 clew_ref_point_y - 1 * clew_scale,
+                 clew_ref_point_y + 0.5 * clew_scale,
+                 clew_ref_point_y - 1 * clew_scale,
+                 clew_ref_point_y + 2 * clew_scale,
+                 clew_ref_point_y + 2.7 * clew_scale]
+
+            x3, y3 = [clew_ref_point_x + (-1)**m * 5.2 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 5 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 4 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 6 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 0.5 * clew_scale],\
+                [clew_ref_point_y,
+                 clew_ref_point_y - 4.5 * clew_scale,
+                 clew_ref_point_y - 4 * clew_scale,
+                 clew_ref_point_y + 2 * clew_scale,
+                 clew_ref_point_y + 3.5 * clew_scale,
+                 clew_ref_point_y + 5.5 * clew_scale]
+
+            x4, y4 = [clew_ref_point_x + (-1)**m * 6 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 4.5 * clew_scale,
+                      clew_ref_point_x + (-1)**m * 3.5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 5 * clew_scale,
+                      clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
+                      clew_ref_point_x],\
+                [clew_ref_point_y + 3 * clew_scale,
+                 clew_ref_point_y + 5 * clew_scale,
+                 clew_ref_point_y + 6 * clew_scale,
+                 clew_ref_point_y + 5 * clew_scale,
+                 clew_ref_point_y + 6 * clew_scale,
+                 clew_ref_point_y + 6.7 * clew_scale]
+
+            # curves_amount == len(x1)
+            bezier(x1, x2, x3, x4, y1, y2, y3, y4, len(x1), black, 1 + clew_scale // 10)
+
+        clew_threads_inside()
+
+    clew_threads()
+
+
+# Here we draw clews
+clew(x_max // 2 - 13 * screen_scale_x, y_max // 2 + 6 * screen_scale_y, 4, 'left')
+clew(x_max // 2 + 10 * screen_scale_x, y_max // 2 + 26 * screen_scale_y, 7, 'right')
+clew(x_max // 2 + 27 * screen_scale_x, y_max // 2 + 21 * screen_scale_y, 4, 'right')
+clew(x_max // 2 - 25 * screen_scale_x, y_max // 2 + 35 * screen_scale_y, 4, 'left')
+clew(x_max // 2 - 5 * screen_scale_x, y_max // 2 + 38 * screen_scale_y, 10, 'left')
+clew(x_max // 2 + 28 * screen_scale_x, y_max // 2 + 38 * screen_scale_y, 7, 'right')
+clew(x_max // 2 + 15 * screen_scale_x, y_max // 2 + 45 * screen_scale_y, 4, 'left')
+
+
 # Here we draw cats
 cat(x_max // 2 + 130, y_max // 2, 5.0, orange, green, 'left')
 cat(x_max // 2 - 250, y_max // 2 + 50, 2.0, orange, green, 'right')
@@ -470,174 +640,6 @@ while not finished:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
-
-
-    def bezier(x1: list, x2: list, x3: list, x4: list,
-               y1: list, y2: list, y3: list, y4: list,
-               curves_amount: int, curves_colour: tuple, line_thickness):
-        """
-        This function draws Bezier's curves in the amount of curves_amount pieces with 4 control points.
-        x1 and y1 are start point coord., x4 and y4 are end point coord.
-        x2, y2, x3, y3 are middle coord.
-        :param x1:
-        :param x2:
-        :param x3:
-        :param x4:
-        :param y1:
-        :param y2:
-        :param y3:
-        :param y4:
-        :param curves_amount:
-        :param curves_colour:
-        :param line_thickness:
-        :return:
-        """
-        for j in range(0, curves_amount):
-            curve = []
-
-            for i in map(lambda x: x / 100.0, range(0, 105, 5)):
-                x = (1.0 - i) ** 3 * x1[j] + 3 * (1.0 - i) ** 2 * i * x2[j] + 3 * (1.0 - i) * i ** 2 * \
-                    x3[j] + i ** 3 * x4[j]
-                y = (1.0 - i) ** 3 * y1[j] + 3 * (1.0 - i) ** 2 * i * y2[j] + 3 * (1.0 - i) * i ** 2 * \
-                    y3[j] + i ** 3 * y4[j]
-                curve.append([x, y])
-
-            lines(screen, curves_colour, False, curve, line_thickness)
-
-    def clew(clew_ref_point_x=x_max // 2 + 10 * screen_scale_x, clew_ref_point_y=y_max // 2 + 37 * screen_scale_y,
-             clew_scale=5, clew_orientation="left"):
-        """
-        This function draws clew. clew_ref_point X and Y coord. are when center of clew circle is.
-        Has low level function: clew_threads()
-        :param clew_ref_point_x:
-        :param clew_ref_point_y:
-        :param clew_scale:
-        :param clew_orientation:
-        :return:
-        """
-
-        # m - clew_orientation parameter
-        m = 0
-        if clew_orientation == "right":
-            m = 1
-        elif clew_orientation != "left":
-            print("ERROR: incorrect clew_orientation parameter has been given. 'left' or 'right' was expected")
-
-        circle(screen, gray, [clew_ref_point_x, clew_ref_point_y], 8 * clew_scale)
-        circle(screen, black, [clew_ref_point_x, clew_ref_point_y], 8 * clew_scale, width=1)
-
-        def clew_threads():
-            """
-            This function draws threads inside and outside clew.
-            Has 2 low level functions: clew_threads_outside(), clew_threads_inside()
-            :return:
-            """
-
-            def clew_threads_outside():
-                """
-                This function draws threads outside clew.
-                Has high level functions: clew_threads() -> clew().
-                :return:
-                """
-                # this is outside threads coordinates
-                x1, y1 = [clew_ref_point_x - (-1)**m * 6.2 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 19 * clew_scale],\
-                    [clew_ref_point_y + 5 * clew_scale,
-                     clew_ref_point_y + 8 * clew_scale]
-
-                x2, y2 = [clew_ref_point_x - (-1)**m * 10 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 20 * clew_scale],\
-                    [clew_ref_point_y + 9 * clew_scale,
-                     clew_ref_point_y + 10 * clew_scale]
-
-                x3, y3 = [clew_ref_point_x - (-1)**m * 16 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 24 * clew_scale],\
-                    [clew_ref_point_y + 4 * clew_scale,
-                     clew_ref_point_y + 6 * clew_scale]
-
-                x4, y4 = [clew_ref_point_x - (-1)**m * 19 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 29 * clew_scale],\
-                    [clew_ref_point_y + 8 * clew_scale,
-                     clew_ref_point_y + 9 * clew_scale]
-
-                bezier(x1, x2, x3, x4, y1, y2, y3, y4, len(x1), gray, 1 + clew_scale // 10)
-
-            clew_threads_outside()
-
-            def clew_threads_inside():
-                """
-                This function draws threads inside clew.
-                Has high level functions: clew_threads() -> clew().
-                :return:
-                """
-                # this is inside threads coordinates
-                x1, y1 = [clew_ref_point_x + (-1)**m * 2.2 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 2 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 3 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 1.5 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 1.5 * clew_scale],\
-                    [clew_ref_point_y - 5 * clew_scale,
-                     clew_ref_point_y - 5 * clew_scale,
-                     clew_ref_point_y - 3.5 * clew_scale,
-                     clew_ref_point_y - 1.5 * clew_scale,
-                     clew_ref_point_y,
-                     clew_ref_point_y + 2 * clew_scale]
-
-                x2, y2 = [clew_ref_point_x + (-1)**m * 7.5 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 1.8 * clew_scale,
-                          clew_ref_point_x,
-                          clew_ref_point_x - (-1)**m * 4.5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 4.5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 0.5 * clew_scale],\
-                    [clew_ref_point_y - 2 * clew_scale,
-                     clew_ref_point_y - 1 * clew_scale,
-                     clew_ref_point_y + 0.5 * clew_scale,
-                     clew_ref_point_y - 1 * clew_scale,
-                     clew_ref_point_y + 2 * clew_scale,
-                     clew_ref_point_y + 2.7 * clew_scale]
-
-                x3, y3 = [clew_ref_point_x + (-1)**m * 5.2 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 5 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 4 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 6 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 0.5 * clew_scale],\
-                    [clew_ref_point_y,
-                     clew_ref_point_y - 4.5 * clew_scale,
-                     clew_ref_point_y - 4 * clew_scale,
-                     clew_ref_point_y + 2 * clew_scale,
-                     clew_ref_point_y + 3.5 * clew_scale,
-                     clew_ref_point_y + 5.5 * clew_scale]
-
-                x4, y4 = [clew_ref_point_x + (-1)**m * 6 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 4.5 * clew_scale,
-                          clew_ref_point_x + (-1)**m * 3.5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 5 * clew_scale,
-                          clew_ref_point_x - (-1)**m * 3.5 * clew_scale,
-                          clew_ref_point_x],\
-                    [clew_ref_point_y + 3 * clew_scale,
-                     clew_ref_point_y + 5 * clew_scale,
-                     clew_ref_point_y + 6 * clew_scale,
-                     clew_ref_point_y + 5 * clew_scale,
-                     clew_ref_point_y + 6 * clew_scale,
-                     clew_ref_point_y + 6.7 * clew_scale]
-
-                # curves_amount == len(x1)
-                bezier(x1, x2, x3, x4, y1, y2, y3, y4, len(x1), black, 1 + clew_scale // 10)
-
-            clew_threads_inside()
-
-        clew_threads()
-
-    # Here we draw clews
-    clew(x_max // 2 - 13 * screen_scale_x, y_max // 2 + 6 * screen_scale_y, 4, 'left')
-    clew(x_max // 2 + 10 * screen_scale_x, y_max // 2 + 26 * screen_scale_y, 7, 'right')
-    clew(x_max // 2 + 27 * screen_scale_x, y_max // 2 + 21 * screen_scale_y, 4, 'right')
-    clew(x_max // 2 - 25 * screen_scale_x, y_max // 2 + 35 * screen_scale_y, 4, 'left')
-    clew(x_max // 2 - 5 * screen_scale_x, y_max // 2 + 38 * screen_scale_y, 10, 'left')
-    clew(x_max // 2 + 28 * screen_scale_x, y_max // 2 + 38 * screen_scale_y, 7, 'right')
-    clew(x_max // 2 + 15 * screen_scale_x, y_max // 2 + 45 * screen_scale_y, 4, 'left')
 
     pygame.display.flip()
 
